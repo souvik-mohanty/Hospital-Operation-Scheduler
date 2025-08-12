@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Operation Scheduler</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="bg-blue-600 text-white p-4 shadow-md fixed top-0 w-full z-50">
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center space-y-4 
+            sm:space-y-0">
+
+            <div class="flex w-full justify-between items-center">
+              <h1 class="text-2xl logo font-bold text-center">HospScheduler</h1>
+
+              <!--Hamburger Menu Button (Mobile Only) -->
+              <button id="menu-toggle" class="sm:hidden text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+              </button>
+            </div>
+
+            <nav class="w-full ">
+               <ul id="nav-menu" class=" hidden flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 items-center sm:items-center ">
+                <li><button id="nav-login" class="text-white hover:text-blue-200 font-medium">Login</button></li>
+                <li><button id="nav-register" class="text-white hover:text-blue-200 font-medium">Register</button></li>
+              <!------ View Schedule ----->
+                <li class="user-nav hidden"><button id="nav-view" class="text-white hover:text-blue-200 font-medium">View Schedule</button></li>
+                <!------ View Doctors ----->
+                <li class="user-nav hidden"><button id="nav-view-doctors" class="text-white hover:text-blue-200 font-medium">View Doctors</button></li>
+                <!------ Schedule Operation  ----->
+                <li class="admin-nav hidden"><button id="nav-schedule" class="text-white hover:text-blue-200 font-medium">Schedule Operation</button></li>
+                <!------ Manage Doctors ----->
+                <li class="admin-nav hidden"><button id="nav-manage-doctors" class="text-white hover:text-blue-200 font-medium">Manage Doctors</button></li>
+
+                <!------ Manage Patients ----->
+                <li class="admin-nav hidden"><button id="nav-manage-patients" class="text-white hover:text-blue-200 font-medium">Manage Patients</button></li>
+                <!------ Admin Dashboard ----->
+                <li class="admin-nav hidden"><button id="nav-admin" class="text-white hover:text-blue-200 font-medium">Control Panel</button></li>
+                <li class="logged-in-nav hidden"><button id="nav-logout" class="btn-secondary">Logout</button></li>
+              </ul>
+            </nav>
+        </div>
+    </header>
+
+      <!-- Callback Modal -->
+      <div id="callback-modal" class="modal-overlay">
+        <div class="modal-box">
+          <div class="modal-left">
+            <h2>Get A Call Back From Our <br><span class="highlight">Health Advisor Now</span></h2>
+            <p>Enter your details, and our advisor will call you back shortly!</p>
+            <form id="callback-form">
+              <input type="text" placeholder="Enter Your Name" required>
+              <div class="phone-input">
+                <input id="phone"  type="number" placeholder="081234 56789" required>
+              </div>
+              <button type="submit">Submit</button>
+              <small>By submitting, you consent to receive calls, WhatsApp & SMS.</small>
+            </form>
+          </div>
+          <div class="modal-right">
+            <img src="doctor.jpg" alt="Doctor" />
+          </div>
+          <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+      </div>
+
+      <!-- 🌟 Global Hospital-Themed Background -->
+      <div class="relative min-h-screen bg-gradient-to-tr from-blue-50 via-white to-blue-100 overflow-hidden">
+
+      <!-- 💫 Floating Animated Icons -->
+      <div class="absolute inset-0 z-0 pointer-events-none">
+        <div class="absolute top-10 left-10 animate-pulse-slow opacity-10">
+          <img src="https://img.icons8.com/ios-filled/100/4e91fc/heart-with-pulse.png" class="w-12 h-12" />
+        </div>
+        <div class="absolute bottom-16 right-16 animate-float opacity-10">
+          <img src="https://img.icons8.com/ios-filled/100/4e91fc/plus.png" class="w-10 h-10" />
+        </div>
+        <div class="absolute top-1/3 right-1/4 animate-pulse-slow opacity-10">
+          <img src="https://img.icons8.com/ios-filled/100/4e91fc/medical-doctor.png" class="w-14 h-14" />
+        </div>
+      </div>
+      <!-- 💫 Floating SVG Icons -->
+        <div class="absolute inset-0 z-0 pointer-events-none">
+          <!-- Heart Icon -->
+          <svg class="absolute top-10 left-10 w-12 h-12 text-blue-400 opacity-10 animate-float" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+                     2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 
+                     4.5 2.09C13.09 3.81 14.76 3 16.5 3 
+                     19.58 3 22 5.42 22 8.5c0 3.78-3.4 
+                     6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+
+          <!-- Plus Icon -->
+          <svg class="absolute bottom-16 right-16 w-10 h-10 text-blue-500 opacity-10 animate-float-delay" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+          </svg>
+
+          <!-- Doctor Icon (Stethoscope-like) -->
+          <svg class="absolute top-1/3 right-1/4 w-14 h-14 text-blue-300 opacity-10 animate-float" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20 11a2 2 0 01-2 2h-2v2a6 6 0 11-12 0v-2H4a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6v2a4 4 0 008 0v-2h-1a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2v4z"/>
+          </svg>
+        </div>
+
+
+        <main class="flex-grow container mt-8">
+            <div id="user-info" class="text-sm text-gray-600 mb-4 text-right">
+                Logged in as: <span id="display-user-email">Not logged in</span> | User ID: <span id="display-user-id">Loading...</span>
+            </div>
+
+            <!-- Login Section -->
+
+            <section id="login-section" class="card max-w-md mx-auto bg-gradient-to-br from-white to-blue-50 p-10 rounded-3xl shadow-2xl border border-blue-100 animate-fade-in">
+              <h2 class="text-3xl font-bold mb-8 text-blue-900 text-center">Login to Your Account</h2>
+     
+              <form id="login-form" class="space-y-5">
+                <div>
+                  <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                  <input
+                    type="email"
+                    id="login-email"
+                    placeholder="yourname@example.com"
+                    required
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300"
+                  />
+                </div>
+
+                <div>
+                  <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password:</label>
+                  <input
+                    type="password"
+                    id="login-password"
+                    required
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300"
+                  />
+                </div>
+
+                <div class="flex justify-end">
+                  <button type="submit" class="btn-primary w-full ">Login</button>
+                </div>
+              </form>
+
+              <p class="mt-6 text-center text-sm text-gray-600">
+                Don't have an account?
+                <button id="switch-to-register" class="text-blue-600 hover:underline font-medium">Register here</button>
+              </p>
+            </section>
+
+            <!-- Register Section -->
+            <section id="register-section" class="card max-w-md mx-auto bg-gradient-to-br from-white to-blue-50 p-10 rounded-3xl shadow-2xl border border-blue-100 animate-fade-in">
+                <h2 class="text-3xl font-bold mb-8 text-blue-900 text-center">Create an Account</h2>
+     
+                <form id="register-form" class="space-y-5">
+                  <div>
+                    <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                    <input type="email" id="register-email" placeholder="your@example.com" required
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300"/>
+                  </div>
+
+                  <div>
+                    <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">Password:</label>
+                    <input
+                      type="password"
+                      id="register-password"
+                      required
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-300"
+                    />
+                  </div>
+
+                  <div class="flex justify-end">
+                    <button type="submit" class="btn-primary w-full">Register</button>
+                  </div>
+                </form>
+
+                <p class="mt-6 text-center text-sm text-gray-600">
+                  Already have an account?
+                  <button id="switch-to-login" class="text-blue-600 hover:underline font-medium">Login here</button>
+                </p>
+            </section>
+
+            <!-- Schedule Operation Section (Admin Only) -->
+            <section id="schedule-operation-section" class="card hidden py-12 px-4 bg-gradient-to-tr 
+                 from-blue-100 via-white to-blue-50 min-h-screen">
+              <h2 class="text-3xl font-bold mb-10 text-center text-blue-800">Schedule Surgical Procedure</h2>
+
+              <form id="schedule-form" class="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white p-8 rounded-xl shadow-xl">
+                
+                <!-- Section: Patient Details -->
+                <div class="col-span-1 lg:col-span-2">
+                  <h3 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">Patient Information</h3>
+                </div>
+
+                <div>
+                  <label for="patient-name" class="block text-sm font-medium text-gray-600 mb-1">Full Name</label>
+                  <input type="text" id="patient-name" placeholder="e.g., Jane Doe" required class="input" />
+                </div>
+
+                <div>
+                  <label for="patient-id" class="block text-sm font-medium text-gray-600 mb-1">Medical Record Number (MRN)</label>
+                  <input type="text" id="patient-id" placeholder="e.g., MRN-123456" required class="input" />
+                </div>
+
+                <div>
+                  <label for="patient-age" class="block text-sm font-medium text-gray-600 mb-1">Age (Years)</label>
+                  <input type="number" id="patient-age" placeholder="e.g., 45" min="0" required class="input" />
+                </div>
+
+                <div>
+                  <label for="patient-disease" class="block text-sm font-medium text-gray-600 mb-1">Primary Diagnosis</label>
+                  <input type="text" id="patient-disease" placeholder="e.g., Acute Appendicitis" required class="input" />
+                </div>
+
+                <!-- Section: Procedure Details -->
+                <div class="col-span-1 lg:col-span-2 pt-6">
+                  <h3 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">Surgical Details</h3>
+                </div>
+
+                <div>
+                  <label for="operation-date" class="block text-sm font-medium text-gray-600 mb-1">Procedure Date</label>
+                  <input type="date" id="operation-date" required class="input" />
+                </div>
+
+                <div>
+                  <label for="operation-time" class="block text-sm font-medium text-gray-600 mb-1">Procedure Time</label>
+                  <input type="time" id="operation-time" required class="input" />
+                </div>
+
+                <div>
+                  <label for="ot-id" class="block text-sm font-medium text-gray-600 mb-1">Operating Theatre ID</label>
+                  <input type="text" id="ot-id" placeholder="e.g., OT-01" required class="input" />
+                </div>
+
+                <div>
+                  <label for="anesthesia-type" class="block text-sm font-medium text-gray-600 mb-1">Anesthesia Type</label>
+                  <input type="text" id="anesthesia-type" placeholder="e.g., General, Local" required class="input" />
+                </div>
+
+                <div>
+                  <label for="anesthesiologist-name" class="block text-sm font-medium text-gray-600 mb-1">Consulting Anesthesiologist</label>
+                  <input type="text" id="anesthesiologist-name" placeholder="e.g., Dr. A. Kumar" required class="input" />
+                </div>
+
+                <div>
+                  <label for="medic-name" class="block text-sm font-medium text-gray-600 mb-1">Assistant Surgeon</label>
+                  <input type="text" id="medic-name" placeholder="e.g., Dr. S. Roy" class="input" />
+                </div>
+
+                <div>
+                  <label for="nurses-involved" class="block text-sm font-medium text-gray-600 mb-1">Nursing Staff</label>
+                  <input type="text" id="nurses-involved" placeholder="e.g., Nurse Meena, Nurse Raj" class="input" />
+                </div>
+
+                <!-- Section: Observations -->
+                <div class="col-span-1 lg:col-span-2 pt-6">
+                  <h3 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">Clinical Notes</h3>
+                </div>
+
+                <div>
+                  <label for="pre-op-events" class="block text-sm font-medium text-gray-600 mb-1">Pre-Operative Notes</label>
+                  <textarea id="pre-op-events" rows="2" placeholder="e.g., Fasting confirmed, consent obtained" class="input"></textarea>
+                </div>
+
+                <div>
+                  <label for="post-op-events" class="block text-sm font-medium text-gray-600 mb-1">Post-Operative Observations</label>
+                  <textarea id="post-op-events" rows="2" placeholder="e.g., Patient stable in PACU" class="input"></textarea>
+                </div>
+
+                <div>
+                  <label for="surgical-reports" class="block text-sm font-medium text-gray-600 mb-1">Surgical Summary</label>
+                  <textarea id="surgical-reports" rows="2" placeholder="e.g., Laparoscopic procedure successful" class="input"></textarea>
+                </div>
+
+                <div>
+                  <label for="ot-doctor-remarks" class="block text-sm font-medium text-gray-600 mb-1">Surgeon's Remarks</label>
+                  <textarea id="ot-doctor-remarks" rows="2" placeholder="e.g., Tissue sent for pathology" class="input"></textarea>
+                </div>
+
+                <div>
+                  <label for="required-materials" class="block text-sm font-medium text-gray-600 mb-1">Medicines & Equipment</label>
+                  <textarea id="required-materials" rows="2" placeholder="e.g., Sutures, Ceftriaxone, drapes" class="input"></textarea>
+                </div>
+
+                <div class="lg:col-span-2 flex justify-end pt-6">
+                  <button type="submit" class="btn-primary" id="schedule-operation-btn">Confirm Surgery Schedule</button>
+                </div>
+              </form>
+            </section>
+
+
+            <!-- View Schedule Section (User & Admin) -->
+            <section id="view-schedule-section" class="card hidden py-12 px-4 pb-3 bg-gradient-to-tr   
+                  from-blue-50 via-white 
+                  to-blue-100 animate-fade-in ">
+                    <div class="bg-white/80 backdrop-blur-md shadow-2xl rounded-2xl p-8 max-w-5xl mx-auto border border-gray-200 transition-all duration-500">
+                                  
+                    <h2 class="text-3xl font-bold mb-8 text-blue-900 border-b pb-4">View Operation Schedule</h2>
+
+                    <!-- Filter Row -->
+                    <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 mb-8">
+                      <div class="flex-grow w-full">
+                        <label for="schedule-date-filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Date</label>
+                        <input type="date" id="schedule-date-filter"
+                          class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm transition duration-300">
+                      </div>
+
+                  <!-- Buttons -->
+                  <div class="flex gap-2 w-full md:w-auto">
+                    <button id="filter-schedule-btn"
+                      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300 shadow-md w-full md:w-auto">
+                      Filter Schedule
+                    </button>
+                    <button id="view-all-schedule-btn"
+                      class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg transition-all duration-300 shadow-md w-full md:w-auto">
+                      View All Schedules
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Schedule Results -->
+                <div id="schedule-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <!-- Placeholder message -->
+                  <p id="no-schedule-message" class="text-center text-gray-500 italic">No operations scheduled for this date.</p>
+
+                  <!-- Example render structure (remove if using JS to inject) -->
+                  <!--
+                  <div class="p-4 border rounded-lg shadow-sm bg-white hover:shadow-md transition-all duration-300">
+                    <p><strong>Patient:</strong> Jane Doe</p>
+                    <p><strong>Time:</strong> 10:30 AM</p>
+                    <p><strong>OT:</strong> OT-001</p>
+                  </div>
+                  -->
+                </div>
+              </div>
+            </section>
+
+
+
+            <!-- Manage Doctors Section (Admin Only) -->
+             <section id="manage-doctors-section" class="card hidden bg-gradient-to-br from-white to-gray-100 p-8         rounded-2xl shadow-xl border border-gray-200">
+                  <!-- Title -->
+                  <h2 class="text-3xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0112 21.5c-2.5 0-4.847-.735-6.84-2.012L12 14z" />
+                    </svg>
+                    Manage Doctors
+                  </h2>
+
+                  <!-- Doctor Form -->
+                <form id="doctor-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  <!-- 👩‍⚕️ Left Column: Doctor Info -->
+                  <div class="space-y-4">
+                    <div>
+                      <label for="doctor-name" class="block text-sm font-semibold text-gray-700 mb-1">Doctor Name</label>
+                      <input type="text" id="doctor-name" placeholder="e.g., Dr. Alice Wonderland"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                    </div>
+
+                    <div>
+                      <label for="doctor-specialty" class="block text-sm font-semibold text-gray-700 mb-1">Specialty</label>
+                      <input type="text" id="doctor-specialty" placeholder="e.g., Anesthesiology, Surgery"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                    </div>
+
+                    <div>
+                      <label for="doctor-contact" class="block text-sm font-semibold text-gray-700 mb-1">Contact Info</label>
+                      <input type="text" id="doctor-contact" placeholder="e.g., email@example.com or phone"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required>
+                    </div>
+                  </div>
+
+                  <!-- 🖼️ Right Column: Image Upload -->
+                <div class="flex flex-col justify-center items-center gap-4 p-4 bg-white rounded-2xl  
+                   shadow-lg border border-gray-200 max-w-sm mx-auto">
+                  <img src="doctor.jpg" alt="Doctor" class="w-40 h-40 object-cover rounded-full border-4 border-blue-500 shadow-md transition-transform duration-300 hover:scale-105">
+                  <h3 class="text-xl font-semibold text-blue-800">Dr. Jane Doe</h3>
+                  <p class="text-sm text-gray-600 text-center">Cardiologist with 10+ years of experience in patient care and diagnostics.</p>
+                </div>
+
+
+                  <!-- 🔘 Action Buttons: Full Width -->
+                  <div class="md:col-span-2 flex justify-end gap-4 mt-4">
+                    <button type="submit" id="add-doctor-btn"
+                      class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md">Add Doctor</button>
+                    <button type="button" id="cancel-doctor-edit-btn"
+                      class="px-5 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-all shadow-md hidden">Cancel Edit</button>
+                  </div>
+                </form>
+
+                  <!-- Doctor List 
+                  <div class="mt-10">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Registered Doctors</h3>
+                    <div id="doctors-list" class="space-y-4">
+                      <p id="no-doctors-message" class="text-gray-500 text-center italic">No doctors registered yet.</p>
+                    </div>
+                  </div>-->
+                  <!-- Registered Doctors Section -->
+                <div class="mt-10">
+                  <h3 class="text-xl font-semibold text-gray-800 mb-6">Registered Doctors</h3>
+
+                  <!-- Cards Container -->
+                  <div id="doctors-list" class="doctors-list grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <div class="bg-white rounded-xl overflow-hidden shadow-md border hover:shadow-lg transition duration-300">
+
+                  <!-- Content -->
+                  <div class="p-4">
+                    <h4 class="text-lg font-semibold text-purple-700 mb-1">souvik</h4>
+
+                    <!-- Contact -->
+                    <p class="text-sm text-gray-600 mb-2">Contact: mous23@gmail.com</p>
+
+                    <!-- Added By -->
+                    <p class="text-xs text-gray-400 mb-3">Added by: rdS0oYFrEufVdbblESzPKRvLVG82 on 7/24/2025, 10:53:34 AM</p>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2">
+                      <button class="px-4 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded">Edit</button>
+                      <button class="px-4 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded">Delete</button>
+                    </div>
+                  </div>
+                </div>
+
+
+                    <!-- More cards generated here dynamically -->
+
+                  </div>
+
+                  <!-- Fallback message -->
+                  <p id="no-doctors-message" class="text-gray-500 text-center italic mt-6 hidden">No doctors registered yet.</p>
+                </div>
+             </section>
+
+
+
+            <!-- View Doctors Section (User Only) -->
+              <section id="view-doctors-section" class="card hidden bg-gray-50 px-6 py-8 rounded-xl  
+                 shadow-md max-w-6xl mx-auto">
+                  <h2 class="text-2xl font-bold mb-6 text-blue-900 border-b pb-2">👨‍⚕️ View Doctors</h2>
+
+                  <div id="view-doctors-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Cards will be injected here -->
+
+                    <p id="no-view-doctors-message" class="text-gray-500 text-center col-span-full bg-white border border-dashed border-gray-300 py-10 rounded-lg shadow-inner">
+                      No doctors registered yet.
+                    </p>
+                  </div>
+              </section>
+
+
+
+            <!-- Manage Patients Section (Admin Only) -->
+            <section id="manage-patients-section" class="card hidden bg-gradient-to-br from-white   
+                    to-gray-100 p-8  rounded-2xl shadow-xl border border-gray-200">
+                  <h2 class="text-3xl font-bold mb-6 text-indigo-700 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2"
+                      viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M18 9l-6 6-6-6" />
+                    </svg>
+                    Manage Patient's Master List
+                  </h2>
+
+                  <!-- Patient Form -->
+                    <form id="master-patient-form" 
+                          class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-8 rounded-2xl shadow-md border border-gray-200">
+
+                      <div class="flex flex-col">
+                        <label for="master-patient-name" class="text-sm font-semibold text-gray-700 mb-2">👤 Patient Name</label>
+                        <input type="text" id="master-patient-name" placeholder="e.g., Jane Doe" required
+                               class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all" />
+                      </div>
+
+                      <div class="flex flex-col">
+                        <label for="master-patient-id" class="text-sm font-semibold text-gray-700 mb-2">🆔 Patient ID</label>
+                        <input type="text" id="master-patient-id" placeholder="e.g., P12345" required
+                               class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all" />
+                      </div>
+
+                      <div class="flex flex-col">
+                        <label for="master-patient-age" class="text-sm font-semibold text-gray-700 mb-2">Patient Age</label>
+                        <input type="number" id="master-patient-age" placeholder="e.g., 45" min="0" required
+                               class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all" />
+                      </div>
+
+                      <div class="flex flex-col">
+                        <label for="master-patient-contact" class="text-sm font-semibold text-gray-700 mb-2">📞 Contact Info</label>
+                        <input type="text" id="master-patient-contact" placeholder="e.g., phone or email" required
+                               class="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm transition-all" />
+                      </div>
+
+                      <!-- Action Buttons -->
+                      <div class="md:col-span-2 flex justify-end gap-4 mt-6">
+                        <button type="submit" id="add-patient-btn"
+                                class="bg-indigo-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-indigo-700 transition-all">
+                          ➕ Add Patient
+                        </button>
+                        <button type="button" id="cancel-patient-edit-btn" style="display:none;"
+                                class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition-all">
+                          ❌ Cancel Edit
+                        </button>
+                      </div>
+                    </form>
+
+
+                  <!-- Registered Patients -->
+                  <h3 class="text-2xl font-semibold mt-10 mb-4 text-indigo-700">Registered Patients</h3>
+                  <div id="master-patients-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <p id="no-master-patients-message" class="text-gray-500 text-center">No patients registered yet.</p>
+                  </div>
+            </section>
+
+
+            <!-- Admin Dashboard Section (Admin Only) -->
+            <section id="admin-dashboard-section" class="card hidden py-12 px-6 bg-gradient-to-tr from-white  
+                 via-blue-50 to-white min-h-screen animate-fadeIn">
+                <h2 class="text-4xl font-bold text-center text-blue-900 mb-2 tracking-wide">Hospital Admin Panel</h2>
+                <p class="text-center text-gray-600 text-lg mb-10">Track real-time hospital operations, resources, and professional statistics.</p>
+
+                <!-- Stats Overview -->
+                <div id="admin-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                  <!-- Card 1 -->
+                  <div class="p-6 rounded-2xl bg-white bg-opacity-80 backdrop-blur shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border-l-4 border-blue-500">
+                    <h3 class="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                      <i class="fas fa-calendar-check text-blue-600"></i> Total Surgeries Scheduled
+                    </h3>
+                    <p id="total-operations" class="text-5xl font-extrabold text-blue-700 mt-3">0</p>
+                  </div>
+
+                  <!-- Card 2 -->
+                  <div class="p-6 rounded-2xl bg-white bg-opacity-80 backdrop-blur shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border-l-4 border-green-500">
+                    <h3 class="text-sm font-semibold text-green-900 flex items-center gap-2">
+                      <i class="fas fa-hospital-user text-green-600"></i> Operating Theatres Utilized
+                    </h3>
+                    <p id="unique-ots" class="text-5xl font-extrabold text-green-700 mt-3">0</p>
+                  </div>
+
+                  <!-- Card 3 -->
+                  <div class="p-6 rounded-2xl bg-white bg-opacity-80 backdrop-blur shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border-l-4 border-purple-500">
+                    <h3 class="text-sm font-semibold text-purple-900 flex items-center gap-2">
+                      <i class="fas fa-user-md text-purple-600"></i> Registered Medical Professionals
+                    </h3>
+                    <p id="total-doctors" class="text-5xl font-extrabold text-purple-700 mt-3">0</p>
+                  </div>
+
+                  <!-- Card 4 -->
+                  <div class="p-6 rounded-2xl bg-white bg-opacity-80 backdrop-blur shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 border-l-4 border-yellow-500">
+                    <h3 class="text-sm font-semibold text-yellow-900 flex items-center gap-2">
+                      <i class="fas fa-procedures text-yellow-600"></i> Patients on Record
+                    </h3>
+                    <p id="total-master-patients" class="text-5xl font-extrabold text-yellow-700 mt-3">0</p>
+                  </div>
+                </div>
+
+                <!-- Schedule List -->
+                <div class="mt-14">
+                  <h3 class="text-2xl font-semibold text-gray-800 mb-4">Upcoming Surgical Procedures</h3>
+                  <div id="all-schedules-admin" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <p id="no-admin-schedule-message" class="text-gray-500 text-center col-span-full animate-pulse">No procedures are currently scheduled.</p>
+                    <!-- Dynamic schedule cards will be injected here -->
+                  </div>
+                </div>
+           </section>
+
+
+            <!-- Custom Modal for Messages -->
+            <div id="custom-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center 
+              justify-center hidden">
+                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+                    <h3 id="modal-title" class="text-xl font-semibold mb-4 text-gray-800"></h3>
+                    <p id="modal-message" class="text-gray-700 mb-6"></p>
+                    <div class="flex justify-end">
+                        <button id="modal-close-btn" class="btn-primary">OK</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <footer class="bg-gray-800 text-white p-4 text-center mt-8">
+        <div class="container">
+            <p>&copy; 2024 Hospital Operation Scheduler. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs -->
+   <!---js--->
+      <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Import Realtime Database functions
+        import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, get, remove, set } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+        // Global variables for Firebase instances and user ID
+        let app;
+        let db; // Now refers to Realtime Database
+        let auth;
+        let userId = 'anonymous'; // Default to anonymous
+        let userEmail = 'Not logged in'; // Default for display
+        let currentUserRole = 'guest'; // 'guest', 'user', 'admin'
+        const ADMIN_EMAIL = 'admin@hospital.com'; // Hardcoded admin email for demonstration
+
+        // Variables for tracking edit state
+        let editingDoctorId = null;
+        let editingPatientId = null;
+
+        // Define appId using __app_id with a fallback
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+
+        // Get elements
+        const scheduleForm = document.getElementById('schedule-form');
+        const scheduleDateInput = document.getElementById('operation-date');
+        const scheduleTimeInput = document.getElementById('operation-time');
+        const otIdInput = document.getElementById('ot-id');
+        const anesthesiaTypeInput = document.getElementById('anesthesia-type');
+        const anesthesiologistNameInput = document.getElementById('anesthesiologist-name');
+        const medicNameInput = document.getElementById('medic-name');
+        const nursesInvolvedInput = document.getElementById('nurses-involved');
+        const preOpEventsInput = document.getElementById('pre-op-events');
+        const postOpEventsInput = document.getElementById('post-op-events');
+        const surgicalReportsInput = document.getElementById('surgical-reports');
+        const otDoctorRemarksInput = document.getElementById('ot-doctor-remarks');
+        const requiredMaterialsInput = document.getElementById('required-materials');
+
+        // Patient information fields for operation scheduling
+        const patientNameInput = document.getElementById('patient-name');
+        const patientIdInput = document.getElementById('patient-id');
+        const patientAgeInput = document.getElementById('patient-age');
+        const patientDiseaseInput = document.getElementById('patient-disease');
+
+        // Auth elements
+        const loginSection = document.getElementById('login-section');
+        const registerSection = document.getElementById('register-section');
+        const loginForm = document.getElementById('login-form');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+        const registerForm = document.getElementById('register-form');
+        const registerEmailInput = document.getElementById('register-email');
+        const registerPasswordInput = document.getElementById('register-password');
+        const switchToRegisterBtn = document.getElementById('switch-to-register');
+        const switchToLoginBtn = document.getElementById('switch-to-login');
+
+        // Navigation buttons
+        const navLoginBtn = document.getElementById('nav-login');
+        const navRegisterBtn = document.getElementById('nav-register');
+        const navScheduleBtn = document.getElementById('nav-schedule');
+        const navViewBtn = document.getElementById('nav-view');
+        const navManageDoctorsBtn = document.getElementById('nav-manage-doctors');
+        const navViewDoctorsBtn = document.getElementById('nav-view-doctors'); // New for user view
+        const navManagePatientsBtn = document.getElementById('nav-manage-patients');
+        const navAdminBtn = document.getElementById('nav-admin');
+        const navLogoutBtn = document.getElementById('nav-logout');
+        const userNavItems = document.querySelectorAll('.user-nav');
+        const adminNavItems = document.querySelectorAll('.admin-nav');
+        const loggedInNavItems = document.querySelectorAll('.logged-in-nav');
+
+
+        const scheduleOperationSection = document.getElementById('schedule-operation-section');
+        const viewScheduleSection = document.getElementById('view-schedule-section');
+        const adminDashboardSection = document.getElementById('admin-dashboard-section');
+        const manageDoctorsSection = document.getElementById('manage-doctors-section');
+        const viewDoctorsSection = document.getElementById('view-doctors-section'); // New for user view
+        const managePatientsSection = document.getElementById('manage-patients-section');
+
+
+        const scheduleDateFilterInput = document.getElementById('schedule-date-filter');
+        const filterScheduleBtn = document.getElementById('filter-schedule-btn');
+        const viewAllScheduleBtn = document.getElementById('view-all-schedule-btn');
+        const scheduleListDiv = document.getElementById('schedule-list');
+        const noScheduleMessage = document.getElementById('no-schedule-message');
+        const allSchedulesAdminDiv = document.getElementById('all-schedules-admin');
+        const noAdminScheduleMessage = document.getElementById('no-admin-schedule-message');
+
+        const displayUserIdSpan = document.getElementById('display-user-id');
+        const displayUserEmailSpan = document.getElementById('display-user-email');
+        const totalOperationsSpan = document.getElementById('total-operations');
+        const uniqueOtsSpan = document.getElementById('unique-ots');
+        const totalDoctorsSpan = document.getElementById('total-doctors');
+        const totalMasterPatientsSpan = document.getElementById('total-master-patients');
+
+        // Doctor Management elements
+        const doctorForm = document.getElementById('doctor-form');
+        const doctorNameInput = document.getElementById('doctor-name');
+        const doctorSpecialtyInput = document.getElementById('doctor-specialty');
+        const doctorContactInput = document.getElementById('doctor-contact');
+        const addDoctorBtn = document.getElementById('add-doctor-btn'); // For update text
+        const cancelDoctorEditBtn = document.getElementById('cancel-doctor-edit-btn'); // Cancel edit
+        const doctorsListDiv = document.getElementById('doctors-list'); // For admin manage doctors
+        const viewDoctorsListDiv = document.getElementById('view-doctors-list'); // For user view doctors
+        const noDoctorsMessage = document.getElementById('no-doctors-message');
+        const noViewDoctorsMessage = document.getElementById('no-view-doctors-message');
+
+        // Master Patient Management elements
+        const masterPatientForm = document.getElementById('master-patient-form');
+        const masterPatientNameInput = document.getElementById('master-patient-name');
+        const masterPatientIdInput = document.getElementById('master-patient-id');
+        const masterPatientAgeInput = document.getElementById('master-patient-age');
+        const masterPatientContactInput = document.getElementById('master-patient-contact');
+        const addPatientBtn = document.getElementById('add-patient-btn'); // For update text
+        const cancelPatientEditBtn = document.getElementById('cancel-patient-edit-btn'); // Cancel edit
+        const masterPatientsListDiv = document.getElementById('master-patients-list');
+        const noMasterPatientsMessage = document.getElementById('no-master-patients-message');
+
+
+        // Custom Modal elements
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        /**
+         * Displays a custom modal message to the user.
+         * @param {string} title - The title of the modal.
+         * @param {string} message - The message to display in the modal.
+         */
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            customModal.classList.remove('hidden');
+        }
+
+        // Close modal when OK button is clicked
+        modalCloseBtn.addEventListener('click', () => {
+            customModal.classList.add('hidden');
+        });
+
+        /**
+         * Logs messages to the console for debugging and tracking.
+         * @param {string} level - The log level (e.g., 'info', 'warn', 'error').
+         * @param {string} message - The message to log.
+         * @param {any} data - Optional data to log alongside the message.
+         */
+        function log(level, message, data = null) {
+            const timestamp = new Date().toISOString();
+            let logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+            if (data) {
+                console[level](logMessage, data);
+            } else {
+                console[level](logMessage);
+            }
+        }
+
+        /**
+         * Initializes Firebase and handles user authentication.
+         */
+        async function initializeFirebase() {
+            try {
+                log('info', 'Initializing Firebase...');
+                // Direct Firebase configuration provided by the user
+                const firebaseConfig = {
+                    apiKey: "AIzaSyA_Hv6DLyM74LZSTt-R51JKPpj0Ph95RHE",
+                    authDomain: "operation-scheduler-17c09.firebaseapp.com",
+                    databaseURL: "https://operation-scheduler-17c09-default-rtdb.firebaseio.com",
+                    projectId: "operation-scheduler-17c09",
+                    storageBucket: "operation-scheduler-17c09.firebasestorage.app",
+                    messagingSenderId: "170160279762",
+                    appId: "1:170160279762:web:22123c90296a9a62975d0b",
+                    measurementId: "G-GHZK3YTF4P"
+                };
+                
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getDatabase(app); // Initialize Realtime Database
+                log('info', 'Firebase app and Realtime Database initialized.');
+
+                // Listen for authentication state changes
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userEmail = user.email || 'Anonymous';
+                        
+                        // Determine user role
+                        if (userEmail === ADMIN_EMAIL) {
+                            currentUserRole = 'admin';
+                            log('info', `User is Admin: ${userEmail}`);
+                        } else {
+                            currentUserRole = 'user';
+                            log('info', `User is Regular User: ${userEmail}`);
+                        }
+
+                        displayUserIdSpan.textContent = userId;
+                        displayUserEmailSpan.textContent = userEmail;
+                        updateNavVisibility(); // Update navigation based on role
+                        setupRealtimeListeners(); // Setup listeners after auth is ready
+                        
+                        // Redirect to appropriate default section based on role
+                        if (currentUserRole === 'admin') {
+                            showSection(adminDashboardSection);
+                        } else {
+                            showSection(viewScheduleSection); // Regular user default view
+                        }
+
+                    } else {
+                        // User is logged out or not authenticated
+                        userId = crypto.randomUUID(); // Fallback for anonymous ID if not authenticated
+                        userEmail = 'Not logged in';
+                        currentUserRole = 'guest';
+                        log('info', 'User signed out or not authenticated.');
+                        displayUserIdSpan.textContent = userId;
+                        displayUserEmailSpan.textContent = userEmail;
+                        updateNavVisibility(); // Hide authenticated nav items
+                        showSection(loginSection); // Show login page if not authenticated
+                    }
+                });
+            } catch (error) {
+                log('error', 'Error initializing Firebase or signing in:', error);
+                showModal('Error', `Failed to initialize application: ${error.message}`);
+            }
+        }
+
+        /**
+         * Updates the visibility of navigation items based on the current user's role.
+         */
+        function updateNavVisibility() {
+            // Hide all authenticated nav items first
+            userNavItems.forEach(item => item.classList.add('hidden'));
+            adminNavItems.forEach(item => item.classList.add('hidden'));
+            loggedInNavItems.forEach(item => item.classList.add('hidden'));
+            navLoginBtn.classList.remove('hidden');
+            navRegisterBtn.classList.remove('hidden');
+
+            if (currentUserRole === 'admin') {
+                adminNavItems.forEach(item => item.classList.remove('hidden'));
+                userNavItems.forEach(item => item.classList.remove('hidden')); // Admins can also view user sections
+                loggedInNavItems.forEach(item => item.classList.remove('hidden'));
+                navLoginBtn.classList.add('hidden');
+                navRegisterBtn.classList.add('hidden');
+            } else if (currentUserRole === 'user') {
+                userNavItems.forEach(item => item.classList.remove('hidden'));
+                loggedInNavItems.forEach(item => item.classList.remove('hidden'));
+                navLoginBtn.classList.add('hidden');
+                navRegisterBtn.classList.add('hidden');
+            }
+            // If currentUserRole is 'guest', only login/register are visible (default state)
+        }
+
+        /**
+         * Sets up real-time listeners for operation schedules, doctors, and patients.
+         * This function is called after Firebase authentication is ready.
+         */
+        function setupRealtimeListeners() {
+            if (!db || !userId) {
+                log('warn', 'Realtime Database or User ID not ready for listeners.');
+                return;
+            }
+
+            // Listener for all operations (used by admin dashboard and general view)
+            const operationsRef = ref(db, `artifacts/${appId}/public/data/operations`);
+            onValue(operationsRef, (snapshot) => {
+                const operations = [];
+                snapshot.forEach(childSnapshot => {
+                    operations.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                log('info', 'Realtime update for all operations:', operations);
+                
+                // Render for admin dashboard
+                renderSchedules(operations, allSchedulesAdminDiv, noAdminScheduleMessage, true); // Admin can delete
+                updateAdminStats(operations);
+
+                // Re-render for view schedule section if it's active
+                if (!viewScheduleSection.classList.contains('hidden')) {
+                    filterSchedulesByDate(scheduleDateFilterInput.value); // Re-apply filter for current date
+                }
+
+            }, (error) => {
+                log('error', 'Error getting realtime operations:', error);
+                showModal('Error', `Failed to load operations: ${error.message}`);
+            });
+
+            // Listener for doctors list (used by manage doctors and view doctors)
+            const doctorsRef = ref(db, `artifacts/${appId}/public/data/doctors`);
+            onValue(doctorsRef, (snapshot) => {
+                const doctors = [];
+                snapshot.forEach(childSnapshot => {
+                    doctors.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                log('info', 'Realtime update for doctors list:', doctors);
+                
+                // Render for admin manage doctors
+                renderDoctors(doctors, doctorsListDiv, noDoctorsMessage, true); // Admin can delete and edit
+                // Render for user view doctors
+                renderDoctors(doctors, viewDoctorsListDiv, noViewDoctorsMessage, false); // User cannot delete or edit
+                totalDoctorsSpan.textContent = doctors.length; // Update admin stat
+            }, (error) => {
+                log('error', 'Error getting realtime doctors list:', error);
+                showModal('Error', `Failed to load doctors list: ${error.message}`);
+            });
+
+            // Listener for master patients list
+const masterPatientsRef = ref(db, `artifacts/${appId}/public/data/patients`);
+onValue(masterPatientsRef, (snapshot) => {
+    const patients = [];
+    snapshot.forEach(childSnapshot => {
+        // CORRECTED: Add the Firebase key to the patient object as 'firebaseKey'
+        patients.push({ firebaseKey: childSnapshot.key, ...childSnapshot.val() });
+    });
+    log('info', 'Realtime update for master patients list:', patients);
+    renderMasterPatients(patients);
+    totalMasterPatientsSpan.textContent = patients.length;
+}, (error) => {
+    log('error', 'Error getting realtime master patients list:', error);
+    showModal('Error', `Failed to load master patients list: ${error.message}`);
+});
+
+            // Set default date filter for view schedule
+            const today = new Date().toISOString().split('T')[0];
+            scheduleDateInput.value = today;
+            scheduleDateFilterInput.value = today;
+        }
+
+        /**
+         * Handles user registration with email and password.
+         * @param {Event} event - The form submission event.
+         */
+        async function registerUser(event) {
+            event.preventDefault();
+            const email = registerEmailInput.value;
+            const password = registerPasswordInput.value;
+            log('info', `Attempting to register user: ${email}`);
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const newUser = userCredential.user;
+                // Set default role for new users
+                await set(ref(db, `artifacts/${appId}/users/${newUser.uid}/profile`), {
+                    email: newUser.email,
+                    role: (newUser.email === ADMIN_EMAIL) ? 'admin' : 'user', // Assign admin role if it's the admin email
+                    createdAt: new Date().toISOString()
+                });
+                showModal('Success', 'Registration successful! You are now logged in.');
+                registerForm.reset();
+            } catch (error) {
+                log('error', 'Registration failed:', error);
+                showModal('Error', `Registration failed: ${error.message}`);
+            }
+        }
+
+        /**
+         * Handles user login with email and password.
+         * @param {Event} event - The form submission event.
+         */
+        async function loginUser(event) {
+            event.preventDefault();
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            log('info', `Attempting to log in user: ${email}`);
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showModal('Success', 'Login successful!');
+                loginForm.reset();
+            } catch (error) {
+                log('error', 'Login failed:', error);
+                showModal('Error', `Login failed: ${error.message}`);
+            }
+        }
+
+        /**
+         * Handles user logout.
+         */
+        async function logoutUser() {
+            log('info', 'Attempting to log out user.');
+            try {
+                await signOut(auth);
+                showModal('Success', 'You have been logged out.');
+            } catch (error) {
+                log('error', 'Logout failed:', error);
+                showModal('Error', `Logout failed: ${error.message}`);
+            }
+        }
+
+        /**
+         * Handles the submission of the operation schedule form.
+         * @param {Event} event - The form submission event.
+         */
+        async function handleScheduleSubmit(event) {
+            event.preventDefault();
+            log('info', 'Attempting to schedule new operation...');
+
+            if (currentUserRole !== 'admin') {
+                showModal('Permission Denied', 'Only administrators can schedule operations.');
+                log('warn', 'Non-admin attempted to schedule operation.');
+                return;
+            }
+
+            const operationData = {
+                // Patient Information
+                patientName: patientNameInput.value.trim(),
+                patientId: patientIdInput.value.trim(),
+                patientAge: parseInt(patientAgeInput.value, 10), // Parse as integer
+                patientDisease: patientDiseaseInput.value.trim(),
+
+                // Operation Details
+                date: scheduleDateInput.value,
+                time: scheduleTimeInput.value,
+                otId: otIdInput.value.trim(),
+                anesthesiaType: anesthesiaTypeInput.value.trim(),
+                anesthesiologistName: anesthesiologistNameInput.value.trim(),
+                medicName: medicNameInput.value.trim(),
+                nursesInvolved: nursesInvolvedInput.value.trim().split(',').map(n => n.trim()).filter(n => n),
+                preOpEvents: preOpEventsInput.value.trim(),
+                postOpEvents: postOpEventsInput.value.trim(),
+                surgicalReports: surgicalReportsInput.value.trim(),
+                otDoctorRemarks: otDoctorRemarksInput.value.trim(),
+                requiredMaterials: requiredMaterialsInput.value.trim().split(',').map(m => m.trim()).filter(m => m),
+                scheduledBy: userId, // Record who scheduled it
+                scheduledByEmail: userEmail, // Record email
+                timestamp: new Date().toISOString()
+            };
+
+            // Basic validation including new patient fields
+            if (!operationData.patientName || !operationData.patientId || isNaN(operationData.patientAge) || !operationData.patientDisease ||
+                !operationData.date || !operationData.time || !operationData.otId || !operationData.anesthesiaType || !operationData.anesthesiologistName) {
+                showModal('Validation Error', 'Please fill in all required fields (Patient Name, Patient ID, Patient Age, Patient Disease, Date, Time, OT ID, Anesthesia Type, Anesthesiologist Name).');
+                log('warn', 'Form validation failed: Missing required fields.');
+                return;
+            }
+
+            try {
+                // Store in a public path in Realtime Database
+                const operationsRef = ref(db, `artifacts/${appId}/public/data/operations`);
+                const newOpRef = await push(operationsRef, operationData);
+                log('info', `Operation scheduled successfully with ID: ${newOpRef.key}`, operationData);
+                showModal('Success', 'Operation scheduled successfully!');
+                scheduleForm.reset(); // Clear the form
+            } catch (error) {
+                log('error', 'Error scheduling operation:', error);
+                showModal('Error', `Failed to schedule operation: ${error.message}`);
+            }
+        }
+
+        /**
+         * Renders the list of operations in the specified container.
+         * @param {Array<Object>} operations - An array of operation objects.
+         * @param {HTMLElement} containerElement - The DOM element to render the schedules into.
+         * @param {HTMLElement} messageElement - The message element to show/hide if no schedules.
+         * @param {boolean} allowDelete - Whether to show delete buttons (true for admin view).
+         */
+        function renderSchedules(operations, containerElement, messageElement, allowDelete = false) {
+            containerElement.innerHTML = ''; // Clear previous schedules
+            if (operations.length === 0) {
+                messageElement.classList.remove('hidden');
+            } else {
+                messageElement.classList.add('hidden');
+                // Sort operations by date and time
+                operations.sort((a, b) => {
+                    const dateTimeA = new Date(`${a.date}T${a.time}`);
+                    const dateTimeB = new Date(`${b.date}T${b.time}`);
+                    return dateTimeA - dateTimeB;
+                });
+
+                operations.forEach(op => {
+                    const opCard = document.createElement('div');
+                    opCard.className = 'card p-4 mb-4 border border-gray-200';
+                    opCard.innerHTML = `
+                        <h3 class="text-xl font-semibold text-blue-700 mb-2">OT ID: ${op.otId} - ${op.date} at ${op.time}</h3>
+                        <p><strong class="font-medium">Patient:</strong> ${op.patientName} (ID: ${op.patientId}, Age: ${op.patientAge})</p>
+                        <p><strong class="font-medium">Disease:</strong> ${op.patientDisease}</p>
+                        <p><strong class="font-medium">Anesthesiologist:</strong> ${op.anesthesiologistName} (${op.anesthesiaType})</p>
+                        ${op.medicName ? `<p><strong class="font-medium">Assistant Surgeon:</strong> ${op.medicName}</p>` : ''}
+                        ${op.nursesInvolved && op.nursesInvolved.length > 0 ? `<p><strong class="font-medium">Nurses:</strong> ${op.nursesInvolved.join(', ')}</p>` : ''}
+                        ${op.preOpEvents ? `<p><strong class="font-medium">Pre-op Events:</strong> ${op.preOpEvents}</p>` : ''}
+                        ${op.postOpEvents ? `<p><strong class="font-medium">Post-op Events:</strong> ${op.postOpEvents}</p>` : ''}
+                        ${op.surgicalReports ? `<p><strong class="font-medium">Surgical Reports:</strong> ${op.surgicalReports}</p>` : ''}
+                        ${op.otDoctorRemarks ? `<p><strong class="font-medium">Doctor's Remarks:</strong> ${op.otDoctorRemarks}</p>` : ''}
+                        ${op.requiredMaterials && op.requiredMaterials.length > 0 ? `<p><strong class="font-medium">Materials:</strong> ${op.requiredMaterials.join(', ')}</p>` : ''}
+                        <p class="text-sm text-gray-500 mt-2">Scheduled by: ${op.scheduledByEmail} on ${new Date(op.timestamp).toLocaleString()}</p>
+                        ${allowDelete ? `<button class="btn-secondary mt-2 delete-operation-btn" data-id="${op.id}">Delete</button>` : ''}
+                    `;
+                    containerElement.appendChild(opCard);
+                });
+
+                if (allowDelete) {
+                    // Add event listeners for delete buttons only if allowed
+                    containerElement.querySelectorAll('.delete-operation-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const operationIdToDelete = e.target.dataset.id;
+                            if (confirm('Are you sure you want to delete this operation?')) {
+                                deleteOperation(operationIdToDelete);
+                            }
+                        });
+                    });
+                }
+            }
+        }
+
+        /**
+         * Deletes an operation from the Realtime Database.
+         * @param {string} operationId - The ID of the operation to delete.
+         */
+        async function deleteOperation(operationId) {
+            log('info', `Attempting to delete operation with ID: ${operationId}`);
+            if (currentUserRole !== 'admin') {
+                showModal('Permission Denied', 'Only administrators can delete operations.');
+                return;
+            }
+            try {
+                await remove(ref(db, `artifacts/${appId}/public/data/operations/${operationId}`));
+                log('info', `Operation ${operationId} deleted successfully.`);
+                showModal('Success', 'Operation deleted successfully!');
+            } catch (error) {
+                log('error', `Error deleting operation ${operationId}:`, error);
+                showModal('Error', `Failed to delete operation: ${error.message}`);
+            }
+        }
+
+
+        /**
+         * Filters and displays operations for a specific date using Realtime Database.
+         * @param {string} date - The date in YYYY-MM-DD format.
+         */
+        async function filterSchedulesByDate(date) {
+            log('info', `Filtering schedules for date: ${date} using Realtime Database.`);
+            if (!db) {
+                showModal('Error', 'Database not initialized. Please try again.');
+                return;
+            }
+            try {
+                const operationsRef = ref(db, `artifacts/${appId}/public/data/operations`);
+                // Query Realtime Database by date
+                const q = query(operationsRef, orderByChild('date'), equalTo(date));
+                const snapshot = await get(q); // Use get for one-time fetch
+
+                const operations = [];
+                snapshot.forEach((childSnapshot) => {
+                    operations.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                log('info', `Found ${operations.length} operations for ${date} (Realtime DB).`);
+                renderSchedules(operations, scheduleListDiv, noScheduleMessage, currentUserRole === 'admin'); // Pass allowDelete based on role
+            } catch (error) {
+                log('error', 'Error filtering schedules by date (Realtime DB):', error);
+                showModal('Error', `Failed to filter schedules: ${error.message}`);
+            }
+        }
+
+        /**
+         * Fetches and displays all operations using Realtime Database.
+         */
+        async function viewAllSchedules() {
+            log('info', 'Viewing all schedules using Realtime Database...');
+            if (!db) {
+                showModal('Error', 'Database not initialized. Please try again.');
+                return;
+            }
+            try {
+                const operationsRef = ref(db, `artifacts/${appId}/public/data/operations`);
+                const snapshot = await get(operationsRef); // Use get for one-time fetch
+
+                const operations = [];
+                snapshot.forEach((childSnapshot) => {
+                    operations.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                log('info', `Found ${operations.length} total operations (Realtime DB).`);
+                renderSchedules(operations, scheduleListDiv, noScheduleMessage, currentUserRole === 'admin'); // Pass allowDelete based on role
+            } catch (error) {
+                log('error', 'Error viewing all schedules (Realtime DB):', error);
+                showModal('Error', `Failed to retrieve all schedules: ${error.message}`);
+            }
+        }
+
+        /**
+         * Updates the admin dashboard statistics.
+         * @param {Array<Object>} operations - An array of all operation objects.
+         */
+        function updateAdminStats(operations) {
+            totalOperationsSpan.textContent = operations.length;
+
+            const uniqueOTs = new Set();
+            operations.forEach(op => {
+                if (op.otId) {
+                    uniqueOTs.add(op.otId);
+                }
+            });
+            uniqueOtsSpan.textContent = uniqueOTs.size;
+        }
+
+        /**
+         * Handles the submission of the doctor form (Add or Update).
+         * @param {Event} event - The form submission event.
+         */
+        async function handleDoctorSubmit(event) {
+            event.preventDefault();
+
+            if (currentUserRole !== 'admin') {
+                showModal('Permission Denied', 'Only administrators can manage doctors.');
+                return;
+            }
+
+            const doctorData = {
+                name: doctorNameInput.value.trim(),
+                specialty: doctorSpecialtyInput.value.trim(),
+                contact: doctorContactInput.value.trim(),
+                addedBy: userId,
+                timestamp: new Date().toISOString()
+            };
+
+            if (!doctorData.name || !doctorData.specialty || !doctorData.contact) {
+                showModal('Validation Error', 'Please fill in all doctor details.');
+                return;
+            }
+
+            try {
+                if (editingDoctorId) {
+                    // Update existing doctor
+                    await set(ref(db, `artifacts/${appId}/public/data/doctors/${editingDoctorId}`), doctorData);
+                    log('info', `Doctor updated successfully with ID: ${editingDoctorId}`, doctorData);
+                    showModal('Success', 'Doctor updated successfully!');
+                } else {
+                    // Add new doctor
+                    await push(ref(db, `artifacts/${appId}/public/data/doctors`), doctorData);
+                    log('info', 'Doctor added successfully:', doctorData);
+                    showModal('Success', 'Doctor added successfully!');
+                }
+                resetDoctorForm(); // Clear the form and reset button
+            } catch (error) {
+                log('error', `Error ${editingDoctorId ? 'updating' : 'adding'} doctor:`, error);
+                showModal('Error', `Failed to ${editingDoctorId ? 'update' : 'add'} doctor: ${error.message}`);
+            }
+        }
+
+        /**
+         * Populates the doctor form for editing.
+         * @param {string} doctorId - The ID of the doctor to edit.
+         */
+        async function editDoctor(doctorId) {
+            log('info', `Attempting to edit doctor with ID: ${doctorId}`);
+            if (currentUserRole !== 'admin') {
+                showModal('Permission Denied', 'Only administrators can edit doctors.');
+                return;
+            }
+            try {
+                const doctorSnapshot = await get(ref(db, `artifacts/${appId}/public/data/doctors/${doctorId}`));
+                if (doctorSnapshot.exists()) {
+                    const doctorData = doctorSnapshot.val();
+                    doctorNameInput.value = doctorData.name;
+                    doctorSpecialtyInput.value = doctorData.specialty;
+                    doctorContactInput.value = doctorData.contact;
+                    editingDoctorId = doctorId; // Store the ID of the doctor being edited
+                    addDoctorBtn.textContent = 'Update Doctor';
+                    cancelDoctorEditBtn.style.display = 'inline-block';
+                    showSection(manageDoctorsSection); // Ensure the form is visible
+                    log('info', `Doctor data loaded for editing: ${doctorId}`, doctorData);
+                } else {
+                    showModal('Error', 'Doctor not found.');
+                    log('error', `Doctor with ID ${doctorId} not found for editing.`);
+                }
+            } catch (error) {
+                log('error', `Error fetching doctor for edit: ${doctorId}`, error);
+                showModal('Error', `Failed to load doctor for editing: ${error.message}`);
+            }
+        }
+
+        /**
+         * Resets the doctor form to its initial state (for adding a new doctor).
+         */
+        function resetDoctorForm() {
+            doctorForm.reset();
+            editingDoctorId = null;
+            addDoctorBtn.textContent = 'Add Doctor';
+            cancelDoctorEditBtn.style.display = 'none';
+            log('info', 'Doctor form reset.');
+        }
+
+        /**
+         * Renders the list of doctors.
+         * @param {Array<Object>} doctors - An array of doctor objects.
+         * @param {HTMLElement} containerElement - The DOM element to render the doctors into.
+         * @param {HTMLElement} messageElement - The message element to show/hide if no doctors.
+         * @param {boolean} allowEditDelete - Whether to show edit/delete buttons.
+         */
+        function renderDoctors(doctors, containerElement, messageElement, allowEditDelete = false) {
+            containerElement.innerHTML = '';
+            if (doctors.length === 0) {
+                messageElement.classList.remove('hidden');
+            } else {
+                messageElement.classList.add('hidden');
+                doctors.forEach(doc => {
+                    const doctorCard = document.createElement('div');
+                    doctorCard.className = 'card p-4 mb-4 border border-gray-200';
+                    doctorCard.innerHTML = `
+                        <h3 class="text-xl font-semibold text-purple-700 mb-2">${doc.name}</h3>
+                        <p><strong class="font-medium">Specialty:</strong> ${doc.specialty}</p>
+                        <p><strong class="font-medium">Contact:</strong> ${doc.contact}</p>
+                        <p class="text-sm text-gray-500 mt-2">Added by: ${doc.addedBy} on ${new Date(doc.timestamp).toLocaleString()}</p>
+                        ${allowEditDelete ? `
+                            <div class="mt-2 space-x-2">
+                                <button class="btn-primary edit-doctor-btn" data-id="${doc.id}">Edit</button>
+                                <button class="btn-secondary delete-doctor-btn" data-id="${doc.id}">Delete</button>
+                            </div>
+                        ` : ''}
+                    `;
+                    containerElement.appendChild(doctorCard);
+                });
+
+                if (allowEditDelete) {
+                    // Add event listeners for edit and delete buttons
+                    containerElement.querySelectorAll('.edit-doctor-btn').forEach(button => {
+                        button.addEventListener('click', (e) => editDoctor(e.target.dataset.id));
+                    });
+                    containerElement.querySelectorAll('.delete-doctor-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const doctorIdToDelete = e.target.dataset.id;
+                            if (confirm('Are you sure you want to delete this doctor?')) {
+                                deleteDoctor(doctorIdToDelete);
+                            }
+                        });
+                    });
+                }
+            }
+        }
+
+        /**
+         * Deletes a doctor from the Realtime Database.
+         * @param {string} doctorId - The ID of the doctor to delete.
+         */
+        async function deleteDoctor(doctorId) {
+            log('info', `Attempting to delete doctor with ID: ${doctorId}`);
+            if (currentUserRole !== 'admin') {
+                showModal('Permission Denied', 'Only administrators can delete doctors.');
+                return;
+            }
+            try {
+                await remove(ref(db, `artifacts/${appId}/public/data/doctors/${doctorId}`));
+                log('info', `Doctor ${doctorId} deleted successfully.`);
+                showModal('Success', 'Doctor deleted successfully!');
+            } catch (error) {
+                log('error', `Error deleting doctor ${doctorId}:`, error);
+                showModal('Error', `Failed to delete doctor: ${error.message}`);
+            }
+        }
+
+        /**
+         * Handles the submission of the master patient form (Add or Update).
+         * @param {Event} event - The form submission event.
+         */
+        async function handleMasterPatientSubmit(event) {
+            event.preventDefault();
+            log('info', 'Attempting to add/update master patient...');
+
+            if (currentUserRole !== 'admin') {
+                showModal('Permission Denied', 'Only administrators can manage patients.');
+                return;
+            }
+
+            const patientData = {
+                name: masterPatientNameInput.value.trim(),
+                id: masterPatientIdInput.value.trim(), // Note: This ID is used as data, not Firebase key
+                age: parseInt(masterPatientAgeInput.value, 10),
+                contact: masterPatientContactInput.value.trim(),
+                addedBy: userId,
+                timestamp: new Date().toISOString()
+            };
+
+            if (!patientData.name || !patientData.id || isNaN(patientData.age) || !patientData.contact) {
+                showModal('Validation Error', 'Please fill in all master patient details.');
+                return;
+            }
+
+            try {
+                if (editingPatientId) {
+                    // Update existing patient
+                    await set(ref(db, `artifacts/${appId}/public/data/patients/${editingPatientId}`), patientData);
+                    log('info', `Patient updated successfully with ID: ${editingPatientId}`, patientData);
+                    showModal('Success', 'Patient updated successfully!');
+                } else {
+                    // Add new patient
+                    await push(ref(db, `artifacts/${appId}/public/data/patients`), patientData);
+                    log('info', 'Master patient added successfully:', patientData);
+                    showModal('Success', 'Patient added successfully to master list!');
+                }
+                resetPatientForm(); // Clear the form and reset button
+            } catch (error) {
+                log('error', `Error ${editingPatientId ? 'updating' : 'adding'} master patient:`, error);
+                showModal('Error', `Failed to ${editingPatientId ? 'update' : 'add'} patient to master list: ${error.message}`);
+            }
+        }
+
+        /**
+         * Populates the master patient form for editing.
+         * @param {string} patientFirebaseId - The Firebase ID (key) of the patient record to edit.
+         */
+        async function editMasterPatient(patientFirebaseId) {
+            log('info', `Attempting to edit master patient with Firebase ID: ${patientFirebaseId}`);
+            if (currentUserRole !== 'admin') {
+                showModal('Permission Denied', 'Only administrators can edit patients.');
+                return;
+            }
+            try {
+                const patientSnapshot = await get(ref(db, `artifacts/${appId}/public/data/patients/${patientFirebaseId}`));
+                if (patientSnapshot.exists()) {
+                    const patientData = patientSnapshot.val();
+                    masterPatientNameInput.value = patientData.name;
+                    masterPatientIdInput.value = patientData.id; // This is the patient's internal ID
+                    masterPatientAgeInput.value = patientData.age;
+                    masterPatientContactInput.value = patientData.contact;
+                    editingPatientId = patientFirebaseId; // Store the Firebase key of the patient being edited
+                    addPatientBtn.textContent = 'Update Patient';
+                    cancelPatientEditBtn.style.display = 'inline-block';
+                    showSection(managePatientsSection); // Ensure the form is visible
+                    log('info', `Patient data loaded for editing: ${patientFirebaseId}`, patientData);
+                } else {
+                    showModal('Error', 'Patient not found.');
+                    log('error', `Patient with Firebase ID ${patientFirebaseId} not found for editing.`);
+                }
+            } catch (error) {
+                log('error', `Error fetching patient for edit: ${patientFirebaseId}`, error);
+                showModal('Error', `Failed to load patient for editing: ${error.message}`);
+            }
+        }
+
+        /**
+         * Resets the master patient form to its initial state (for adding a new patient).
+         */
+        function resetPatientForm() {
+            masterPatientForm.reset();
+            editingPatientId = null;
+            addPatientBtn.textContent = 'Add Patient';
+            cancelPatientEditBtn.style.display = 'none';
+            log('info', 'Master patient form reset.');
+        }
+
+
+       /**
+ * Renders the list of master patients.
+ * @param {Array<Object>} patients - An array of master patient objects.
+ */
+function renderMasterPatients(patients) {
+    masterPatientsListDiv.innerHTML = '';
+    if (patients.length === 0) {
+        noMasterPatientsMessage.classList.remove('hidden');
+    } else {
+        noMasterPatientsMessage.classList.add('hidden');
+        patients.forEach(pat => {
+            const patientCard = document.createElement('div');
+            patientCard.className = 'card p-4 mb-4 border border-gray-200';
+            patientCard.innerHTML = `
+                <h3 class="text-xl font-semibold text-yellow-700 mb-2">${pat.name} (ID: ${pat.id})</h3>
+                <p><strong class="font-medium">Age:</strong> ${pat.age}</p>
+                <p><strong class="font-medium">Contact:</strong> ${pat.contact}</p>
+                <p class="text-sm text-gray-500 mt-2">Added by: ${pat.addedBy} on ${new Date(pat.timestamp).toLocaleString()}</p>
+                ${currentUserRole === 'admin' ? `
+                    <div class="mt-2 space-x-2">
+                        <button class="btn-primary edit-master-patient-btn" data-firebase-id="${pat.firebaseKey}">Edit</button>
+                        <button class="btn-secondary delete-master-patient-btn" data-firebase-id="${pat.firebaseKey}">Delete</button>
+                    </div>
+                ` : ''}
+            `;
+            masterPatientsListDiv.appendChild(patientCard);
+        });
+
+        if (currentUserRole === 'admin') {
+            // Add event listeners for edit and delete buttons
+            masterPatientsListDiv.querySelectorAll('.edit-master-patient-btn').forEach(button => {
+                // CORRECTED: Use e.target.dataset.firebaseId
+                button.addEventListener('click', (e) => editMasterPatient(e.target.dataset.firebaseId));
+            });
+            masterPatientsListDiv.querySelectorAll('.delete-master-patient-btn').forEach(button => {
+                // CORRECTED: Use e.target.dataset.firebaseId
+                button.addEventListener('click', (e) => {
+                    const patientFirebaseIdToDelete = e.target.dataset.firebaseId;
+                    if (confirm('Are you sure you want to delete this patient from the master list?')) {
+                        deleteMasterPatient(patientFirebaseIdToDelete);
+                    }
+                });
+            });
+        }
+    }
+}
+        /**
+         * Deletes a master patient from the Realtime Database.
+         * @param {string} patientFirebaseId - The Firebase ID (key) of the patient record to delete.
+         */
+        async function deleteMasterPatient(patientFirebaseId) {
+            log('info', `Attempting to delete master patient with Firebase ID: ${patientFirebaseId}`);
+            if (currentUserRole !== 'admin') {
+                showModal('Permission Denied', 'Only administrators can delete patients from the master list.');
+                return;
+            }
+            try {
+                await remove(ref(db, `artifacts/${appId}/public/data/patients/${patientFirebaseId}`));
+                log('info', `Master patient ${patientFirebaseId} deleted successfully.`);
+                showModal('Success', 'Patient deleted from master list successfully!');
+            } catch (error) {
+                log('error', `Error deleting master patient ${patientFirebaseId}:`, error);
+                showModal('Error', `Failed to delete patient from master list: ${error.message}`);
+            }
+        }
+
+
+        /**
+         * Displays the specified section and hides others.
+         * @param {HTMLElement} sectionToShow - The section element to display.
+         */
+        function showSection(sectionToShow) {
+            const allSections = [
+                loginSection, registerSection, scheduleOperationSection,
+                viewScheduleSection, adminDashboardSection, manageDoctorsSection,
+                viewDoctorsSection, managePatientsSection
+            ];
+            allSections.forEach(section => section.classList.add('hidden'));
+            sectionToShow.classList.remove('hidden');
+            log('info', `Displaying section: ${sectionToShow.id}`);
+        }
+
+        // Event Listeners
+        window.onload = initializeFirebase; // Initialize Firebase when the window loads
+
+        // Auth form submissions
+        loginForm.addEventListener('submit', loginUser);
+        registerForm.addEventListener('submit', registerUser);
+        switchToRegisterBtn.addEventListener('click', () => showSection(registerSection));
+        switchToLoginBtn.addEventListener('click', () => showSection(loginSection));
+        navLoginBtn.addEventListener('click', () => showSection(loginSection));
+        navRegisterBtn.addEventListener('click', () => showSection(registerSection));
+        navLogoutBtn.addEventListener('click', logoutUser);
+
+        // Main navigation
+        navScheduleBtn.addEventListener('click', () => showSection(scheduleOperationSection));
+        navViewBtn.addEventListener('click', () => showSection(viewScheduleSection));
+        navAdminBtn.addEventListener('click', () => showSection(adminDashboardSection));
+        navManageDoctorsBtn.addEventListener('click', () => showSection(manageDoctorsSection));
+        navViewDoctorsBtn.addEventListener('click', () => showSection(viewDoctorsSection)); // New nav for user view doctors
+        navManagePatientsBtn.addEventListener('click', () => showSection(managePatientsSection));
+
+        // Operation scheduling
+        scheduleForm.addEventListener('submit', handleScheduleSubmit);
+        filterScheduleBtn.addEventListener('click', () => filterSchedulesByDate(scheduleDateFilterInput.value));
+        viewAllScheduleBtn.addEventListener('click', viewAllSchedules);
+
+        // Doctor management
+        doctorForm.addEventListener('submit', handleDoctorSubmit);
+        cancelDoctorEditBtn.addEventListener('click', resetDoctorForm);
+
+        // Master Patient management
+        masterPatientForm.addEventListener('submit', handleMasterPatientSubmit);
+        cancelPatientEditBtn.addEventListener('click', resetPatientForm);
+
+        // Set default date filter to today for scheduling and viewing
+        const today = new Date().toISOString().split('T')[0];
+        scheduleDateInput.value = today;
+        scheduleDateFilterInput.value = today;
+
+
+        /*------------ extra add -------------*/
+        //Toggle Script 
+        document.getElementById('menu-toggle').addEventListener('click', function () {
+          const menu = document.getElementById('nav-menu');
+          menu.classList.toggle('hidden');
+        });
+
+
+          // Function to create toggle buttons for both password fields
+          function addPasswordToggle(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+
+            // Insert wrapper and move input inside it
+            passwordInput.parentNode.insertBefore(wrapper, passwordInput);
+            wrapper.appendChild(passwordInput);
+
+            // Create eye icon
+            const toggleBtn = document.createElement('span');
+            toggleBtn.innerHTML = '👁️';
+            toggleBtn.style.position = 'absolute';
+            toggleBtn.style.right = '10px';
+            toggleBtn.style.top = '35%';
+            toggleBtn.style.transform = 'translateY(-50%)';
+            toggleBtn.style.cursor = 'pointer';
+            toggleBtn.style.fontSize = '18px';
+            toggleBtn.title = 'Show/Hide Password';
+
+            wrapper.appendChild(toggleBtn);
+
+            toggleBtn.addEventListener('click', () => {
+              const type = passwordInput.getAttribute('type');
+              passwordInput.setAttribute('type', type === 'password' ? 'text' : 'password');
+              toggleBtn.innerHTML = type === 'password' ? '👁️‍🗨️' : '👁️';
+            });
+          }
+
+          // Run when DOM is loaded
+          document.addEventListener('DOMContentLoaded', () => {
+            addPasswordToggle('login-password');
+            addPasswordToggle('register-password');
+          });
+
+          document.getElementById('doctor-img').addEventListener('change', function (e) {
+          const preview = document.getElementById('doctor-img-preview');
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              preview.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+    </script>
+   <!---js--->
+    <script src="script.js"></script>
+</body>
+</html>

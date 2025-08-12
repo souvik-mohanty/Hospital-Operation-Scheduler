@@ -50,7 +50,7 @@ A modern web browser (e.g., Chrome, Firefox)
 Installation
 Clone the repository:
 
-git clone https://github.com/your-username/hospital-operation-scheduler.git
+git clone https://github.com/souvik-mohanty/Hospital-Operation-Scheduler.git
 
 Navigate to the project directory:
 

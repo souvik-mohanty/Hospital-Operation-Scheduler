@@ -109,11 +109,6 @@ For a simple, public-facing demo, you can use the following rules, but note that
 Running the Application
 This is a front-end only application, so you can run it by simply opening the index.html file in your browser.
 
-# From the project root directory
-open index.html # on macOS
-start index.html # on Windows
 
-Alternatively, you can use a simple web server like Live Server in VS Code to get a hot-reloading development environment.
 
-Author
-Your Name - https://github.com/souvik-mohanty
+

@@ -7,6 +7,10 @@ You can view the live application here:
 
 https://hospital-operation-scheduler.netlify.app/
 
+Admin Login Credentials
+• Admin User: admin@hospital.com
+• Password: 123456
+
 Features
 Operation Management: Create, update, and delete operation entries with essential details like patient name, procedure type, and date.
 
